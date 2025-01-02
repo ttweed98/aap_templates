@@ -6,27 +6,59 @@
 
   tasks: 
     - name: Task 1 - Ping Gateway
-      cisco.ios.ios_ping:
-        dest: 10.0.0.1
+      block:
+        - name: Ping gateway
+          cisco.ios.ios_ping:
+            dest: 10.0.0.251
+            count: 1
+          vars:
+            ansible_command_timeout: 180
+          register: "ping_output"
+        
+        - name: Save Output of Ping as Fact
+          set_fact: "ping_output"
+      
+        - name: Print Ping Results
+          debug:
+            msg: 
+              - "Here are the ping results {{ ping_output }}"
+    
+      rescue:
+        - name: Results of Pings to Gateway
+          debug:
+            msg: "Ping Reachability to Gateway failed on {{ ansible_host }}. Unable to reach Gateway"
+    
+    - name: Task 2 - Show Output from Cisco Device
+      block:
+        - name: Task 2 - Gather Facts from Network Devices        
+          cisco.ios.ios_facts:
+            gather_subset: all
+          when: "ping_output is success"
+        
+        - name: Print facts
+          debug:
+            msg: 
+              - "The IOS image is {{ ansible_facts['net_image'] }}"
+              - "The IOS version is {{ ansible_facts['net_version'] }}"
+              - "The Serial is {{ ansible_facts['net_serialnum'] }}"
+              - "The model is {{ ansible_facts['net_model'] }}"
+              - "The ip addresses are {{ ansible_facts['net_all_ipv4_addresses'] }}"
+          when: "ping_output is success"    
+        
+        - name: Gather Show version from Cisco Devices
+          cisco.ios.ios_command:
+            commands: show version | include Version
+          register: version
+          when: "ping_output is success"
+        
+        - name: Print Version of Cisco Device
+          debug: 
+            msg: "The Cisco IOS Verios is {{ version.stdout_lines }}"
+          when: "ping_output is success"
 
-    - name: Gather facts 
-      cisco.ios.ios_facts:
-        gather_subset: all
-    
-    - name: Print facts
-      debug:
-        msg: 
-          - "The IOS image is {{ ansible_facts['net_image'] }}"
-          - "The IOS version is {{ ansible_facts['net_version'] }}"
-          - "The Serial is {{ ansible_facts['net_serialnum'] }}"
-          - "The model is {{ ansible_facts['net_model'] }}"
-          - "The ip addresses are {{ ansible_facts['net_all_ipv4_addresses'] }}"
-    
-    - name: Gather Show version from Cisco Devices
-      cisco.ios.ios_command:
-        commands: show version | include Version
-      register: version
-    
-    - name: Print Version of Cisco Device
-      debug: 
-        msg: "The Cisco IOS Verios is {{ version.stdout_lines }}"
+      rescue:
+        - name: Results of Fact Gathering
+          debug:
+            msg: "Device Facts failed on  {{ ansible_host }}. Unable to reach Gateway"
+
+      
