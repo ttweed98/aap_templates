@@ -1,10 +1,14 @@
 ---
-- name: Gather Facts from Cisco Router
+- name: Test Reachability and Gather Facts from Cisco Router
   hosts: routers
   gather_facts: false
   connection: network_cli 
 
   tasks: 
+    - name: Task 1 - Ping Gateway
+      cisco.ios.ios_ping:
+        dest: 10.0.0.1
+
     - name: Gather facts 
       cisco.ios.ios_facts:
         gather_subset: all
@@ -17,3 +21,12 @@
           - "The Serial is {{ ansible_facts['net_serialnum'] }}"
           - "The model is {{ ansible_facts['net_model'] }}"
           - "The ip addresses are {{ ansible_facts['net_all_ipv4_addresses'] }}"
+    
+    - name: Gather Show version from Cisco Devices
+      cisco.ios.ios_command:
+        commands: show version | include Version
+      register: version
+    
+    - name: Print Version of Cisco Device
+      debug: 
+        msg: "The Cisco IOS Verios is {{ version.stdout_lines }}"
