@@ -9,7 +9,7 @@
       block:
         - name: Ping gateway
           cisco.ios.ios_ping:
-            dest: 10.0.0.251
+            dest: 10.0.0.1
             count: 1
           vars:
             ansible_command_timeout: 180
