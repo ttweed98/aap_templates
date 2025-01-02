@@ -8,8 +8,12 @@
     - name: Gather facts 
       cisco.ios.ios_facts:
         gather_subset: all
-      register: facts
     
     - name: Print facts
       debug:
-        msg: "{{ facts }}"
+        msg: 
+          - "The IOS image is {{ ansible_facts['net_image'] }}"
+          - "The IOS version is {{ ansible_facts['net_version'] }}"
+          - "The Serial is {{ ansible_facts['net_serialnum'] }}"
+          - "The model is {{ ansible_facts['net_model'] }}"
+          - "The ip addresses are {{ ansible_facts['net_all_ipv4_addresses'] }}"
