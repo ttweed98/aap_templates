@@ -1,0 +1,15 @@
+---
+- name: Gather Facts from Cisco Router
+  hosts: routers
+  gather_facts: false
+  connection: network_cli 
+
+  tasks: 
+    - name: Gather facts 
+      cisco.ios.ios_facts:
+        gather_subset: all
+      register: facts
+    
+    - name: Print facts
+      debug:
+        msg: "{{ facts }}"
