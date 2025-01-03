@@ -34,12 +34,10 @@
         block:
           - name: Clone the repo if not present
             ansible.builtin.git:
-              repo: 'https://github.com/ttweed98/aap_templates'
+              repo: 'https://{{ lookup('env', "GUTHUB_TOKEN") }}@github.com/ttweed98/aap_templates'
               dest: /tmp/aap_templates
               clone: yes
               update: no
-            environment:
-              GIT_TOKEN: "{{ github_token }}"
           
           - name: Ensure Backup Directory Exists
             file:
