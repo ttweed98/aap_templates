@@ -34,7 +34,7 @@
         block:
           - name: Clone the repo if not present
             ansible.builtin.git:
-              repo: 'https://{{ lookup('env', "GUTHUB_TOKEN") }}@github.com/ttweed98/aap_templates.git'
+              repo: 'https://{{ lookup('env', 'GITHUB_TOKEN') }}@github.com/ttweed98/aap_templates.git'
               dest: /tmp/aap_templates
               clone: yes
               update: no
