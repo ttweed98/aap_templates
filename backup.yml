@@ -1,22 +1,43 @@
 ---
-- name: Backup Cisco Devices
-  hosts: routers
+- name: Backup Cisco Devices and Push to GitHub
+  hosts: routers  # Define the group of routers in your inventory
   gather_facts: true
-  connection: network_cli 
+  connection: network_cli  # Connect using network_cli for Cisco devices
 
   tasks:
     - name: Get Ansible Date/Time Facts
       setup:
         filter: "ansible_date_time"
         gather_subset: "!all"
-    
+
     - name: Store Date/Time as Fact
       set_fact: 
-        DTG: "{{ ansible_date_time.date }}"
+        DTG: "{{ ansible_date_time.date }}"  # Store the current date in a variable
 
-    - name: Task 1 - Backup Cisco Configuration
+    - name: Backup Cisco Configuration
       cisco.ios.ios_config:
         backup: true
         backup_options:
           filename: "{{ inventory_hostname }}-{{ DTG }}_running-config.cfg"
-          dir_path: ./backups
+          dir_path: "./backups"  # Local directory where the backup will be stored
+
+    - name: Ensure backup directory exists
+      file:
+        path: ./backups
+        state: directory  # Ensure the backups directory exists on the local filesystem
+
+    - name: Copy backup to GitHub repository folder
+      copy:
+        src: "./backups/{{ inventory_hostname }}-{{ DTG }}_running-config.cfg"
+        dest: "/opt/ansible/automation_platform/aap_templates/backups/{{ inventory_hostname }}-{{ DTG }}_running-config.cfg"
+        remote_src: no
+
+    - name: Commit the backup to GitHub repo
+      command: git commit -am "Backup for {{ inventory_hostname }} on {{ DTG }}"
+      args:
+        chdir: /opt/ansible/automation_platform/aap_templates  # Path to the GitHub repository folder
+
+    - name: Push backup to GitHub repo
+      command: git push origin main  # Replace with the correct branch if needed
+      args:
+        chdir: /opt/ansible/automation_platform/aap_templates  # Path to the GitHub repository folder
