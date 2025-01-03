@@ -49,10 +49,13 @@
               state: directory
               mode: '0755'
             delegate_to: localhost
+
+         - debug:
+             msg: "{{ lookup (file, /tmp/{{ inventory_hostname }}-running-config.cfg) }}"
   
-          - name: Copy configuration to repo
+          - name: Copy configuration changes to repo
             copy:
-              src: "/tmp/{{ inventory_hostname }}-running-config.cfg"
+              content: "/tmp/{{ inventory_hostname }}-running-config.cfg"
               dest: "/tmp/aap_templates/backups/{{ inventory_hostname }}-running-config.cfg"
             delegate_to: localhost
   
