@@ -46,6 +46,7 @@
               mode: '0755'
   
           - name: Copy configuration to repo
+            become: yes
             copy:
               src: "/tmp/{{ inventory_hostname }}-running-config.cfg"
               dest: "/tmp/aap_templates/backups/{{ inventory_hostname }}-running-config.cfg"
