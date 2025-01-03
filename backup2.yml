@@ -14,12 +14,12 @@
           dest: "/tmp/{{ inventory_hostname }}-running-config.cfg"
           remote_src: no
   
-      - name: Prepare Git environment
-        block:
-          - name: Ensure git is installed
-            ansible.builtin.package:
-              name: git
-              state: present
+      # - name: Prepare Git environment
+      #   block:
+      #     - name: Ensure git is installed
+      #       ansible.builtin.package:
+      #         name: git
+      #         state: present
   
       - name: Push configuration to GitHub
         block:
