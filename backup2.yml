@@ -51,11 +51,9 @@
             delegate_to: localhost
   
           - name: Copy configuration to repo
-            become: yes
             copy:
               src: "/tmp/{{ inventory_hostname }}-running-config.cfg"
               dest: "/tmp/aap_templates/backups/{{ inventory_hostname }}-running-config.cfg"
-              remote_src: no
             delegate_to: localhost
   
           - name: Commit and push changes
