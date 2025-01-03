@@ -50,8 +50,7 @@
               mode: '0755'
             delegate_to: localhost
 
-         - debug:
-             msg: "{{ lookup (file, /tmp/{{ inventory_hostname }}-running-config.cfg) }}"
+         
   
           - name: Copy configuration changes to repo
             copy:
