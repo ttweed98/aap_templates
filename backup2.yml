@@ -13,6 +13,15 @@
           src: "{{ config_backup.backup_path }}"
           dest: "/tmp/{{ inventory_hostname }}-running-config.cfg"
           remote_src: no
+      
+      - name: Check if source file exists
+        stat:
+          path: "/tmp/{{ inventory_hostname }}-running-config.cfg"
+        register: source_file
+      
+      - name: Debug source file status
+        debug:
+          var: source_file
   
       # - name: Prepare Git environment
       #   block:
