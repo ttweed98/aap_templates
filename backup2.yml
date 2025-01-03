@@ -3,10 +3,6 @@
     hosts: routers
     gather_facts: no
     tasks:
-      - name: Get current date
-        set_fact:
-          current_date: "{{ lookup('pipe', 'date +%Y-%m-%d') }}"
-  
       - name: Retrieve running configuration
         cisco.ios.ios_config:
           backup: yes
@@ -15,7 +11,7 @@
       - name: Save configuration to a file
         copy:
           src: "{{ config_backup.backup_path }}"
-          dest: "/tmp/{{ inventory_hostname }}-{{ current_date }}-running-config.txt"
+          dest: "/tmp/{{ inventory_hostname }}-running-config.cfg"
           remote_src: no
   
       - name: Prepare Git environment
@@ -36,15 +32,15 @@
   
           - name: Copy configuration to repo
             copy:
-              src: "/tmp/{{ inventory_hostname }}-{{ current_date }}-running-config.txt"
-              dest: "/tmp/aap_templates/backups/{{ inventory_hostname }}-{{ current_date }}-running-config.txt"
+              src: "/tmp/{{ inventory_hostname }}-running-config.cfg"
+              dest: "/tmp/aap_templates/backups/{{ inventory_hostname }}-running-config.cfg"
               remote_src: no
   
           - name: Commit and push changes
             shell: |
               cd /tmp/aap_templates
-              git add backups/{{ inventory_hostname }}-{{ current_date }}-running-config.txt
-              git commit -m "Backup running config for {{ inventory_hostname }} on {{ current_date }}"
+              git add backups/{{ inventory_hostname }}-running-config.cfg
+              git commit -m "Backup running config for {{ inventory_hostname }}"
               git push origin main
             environment:
               GIT_AUTHOR_NAME: "Tony Tweed"
@@ -55,5 +51,5 @@
       # Optional cleanup task for temporary files if needed
       - name: Clean up temporary files
         file:
-          path: "/tmp/{{ inventory_hostname }}-{{ current_date }}-running-config.txt"
+          path: "/tmp/{{ inventory_hostname }}-running-config.cfg"
           state: absent
