@@ -1,0 +1,40 @@
+---
+- name: Save running configuration from Cisco router to GitHub
+  hosts: routers
+  gather_facts: no
+  tasks:
+    - name: Fetch the running configuration from the router
+      cisco.ios.ios_config:
+        config: running
+      register: running_config
+
+    - name: Save the running configuration to a file
+      copy:
+        content: "{{ running_config.stdout }}"
+        dest: "/tmp/running-config.txt"
+      delegate_to: localhost
+        
+    - name: Ensure the backup directory exists on GitHub
+      community.general.git:
+        repo: 'https://github.com/ttweed98/aap_templates.git'
+        dest: '/tmp/aap_templates'
+        version: 'main'
+        update: yes
+      delegate_to: localhost
+
+    - name: Copy the running config to GitHub backup directory
+      copy:
+        src: "/tmp/running-config.txt"
+        dest: "/tmp/aap_templates/backups/{{ inventory_hostname }}-running-config.txt"
+      delegate_to: localhost
+
+    - name: Commit and push the configuration to GitHub
+      command:
+        cmd: |
+          cd /tmp/aap_templates
+          git config --global user.email "youremail@example.com"
+          git config --global user.name "Your Name"
+          git add backups/{{ inventory_hostname }}-running-config.txt
+          git commit -m "Backup of running-config from {{ inventory_hostname }} - {{ ansible_date_time.iso8601 }}"
+          git push
+      delegate_to: localhost
