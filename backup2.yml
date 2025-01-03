@@ -1,6 +1,6 @@
 ---
   - name: Backup Cisco running configuration and push to GitHub
-    hosts: cisco_devices
+    hosts: routers
     gather_facts: no
     tasks:
       - name: Retrieve running configuration
