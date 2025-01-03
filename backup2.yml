@@ -29,6 +29,12 @@
               dest: /tmp/aap_templates
               clone: yes
               update: no
+          
+          - name: Ensure Backup Directory Exists
+            file:
+              path: "/tmp/aap_templates/backups/"
+              state: directory
+              mode: '0755'
   
           - name: Copy configuration to repo
             copy:
