@@ -10,7 +10,7 @@
 
     - name: Save the running configuration to a file
       copy:
-        content: "{{ running_config.stdout }}"
+        content: "{{ running_config }}"
         dest: "/tmp/running-config.txt"
       delegate_to: localhost
         
