@@ -3,6 +3,11 @@
     hosts: routers
     gather_facts: no
     tasks:
+      - name: Get current date
+        ansible.builtin.date:
+          format: "%Y-%m-%d"
+        register: current_date
+  
       - name: Retrieve running configuration
         cisco.ios.ios_config:
           backup: yes
@@ -11,7 +16,7 @@
       - name: Save configuration to a file
         copy:
           src: "{{ config_backup.backup_path }}"
-          dest: "/tmp/{{ inventory_hostname }}-{{ ansible_date_time.date }}-running-config.txt"
+          dest: "/tmp/{{ inventory_hostname }}-{{ current_date.date }}-running-config.txt"
           remote_src: no
   
       - name: Prepare Git environment
