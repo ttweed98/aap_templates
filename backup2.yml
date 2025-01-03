@@ -1,6 +1,6 @@
 ---
   - name: Backup Cisco running configuration and push to GitHub
-    hosts: routers
+    hosts: cisco_devices
     gather_facts: no
     tasks:
       - name: Retrieve running configuration
@@ -10,23 +10,9 @@
   
       - name: Save configuration to a file
         copy:
-          # If the configuration is directly available in the response
-          # Adjust `config_backup.response` if the actual key is different
-          content: "{{ config_backup.response }}"
+          src: "{{ config_backup.backup_path }}"
           dest: "/tmp/{{ inventory_hostname }}-{{ ansible_date_time.date }}-running-config.txt"
-  
-        # If the module provides a path to a temporary file instead
-        # use this alternative block
-        # block:
-        #   - name: Read configuration from backup file
-        #     slurp:
-        #       src: "{{ config_backup.backup_path }}"
-        #     register: slurped_config
-  
-        #   - name: Save configuration to a file
-        #     copy:
-        #       content: "{{ slurped_config.content | b64decode }}"
-        #       dest: "/tmp/{{ inventory_hostname }}-{{ ansible_date_time.date }}-running-config.txt"
+          remote_src: no
   
       - name: Prepare Git environment
         block:
