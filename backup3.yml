@@ -8,19 +8,25 @@
         config: running
       register: running_config
 
-    - name: Save the running configuration to a file
+    - name: Save the running configuration to a temporary file on the router
       copy:
         content: "{{ running_config }}"
         dest: "/tmp/running-config.txt"
       delegate_to: localhost
         
+    - name: Fetch the running config to localhost
+      fetch:
+        src: "/tmp/running-config.txt"
+        dest: "/tmp/running-config.txt"
+        flat: yes
+      delegate_to: localhost
+
     - name: Ensure the backup directory exists on GitHub
       ansible.builtin.git:
         repo: 'https://github.com/ttweed98/aap_templates.git'
         dest: '/tmp/aap_templates'
         version: 'main'
         update: yes
-      delegate_to: localhost
 
     - name: Copy the running config to GitHub backup directory
       copy:
@@ -31,8 +37,8 @@
     - name: Commit and push the configuration to GitHub
       shell: |
         cd /tmp/aap_templates
-        # git config --global user.email "ttweed98@gmail.com"
-        # git config --global user.name "Tony Tweed"
+        git config --global user.email "youremail@example.com"
+        git config --global user.name "Your Name"
         git add backups/{{ inventory_hostname }}-running-config.txt
         git commit -m "Backup of running-config from {{ inventory_hostname }}"
         git push
