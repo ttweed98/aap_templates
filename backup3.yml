@@ -28,11 +28,15 @@
         dest: "/tmp/aap_templates/backups/{{ inventory_hostname }}-running-config.txt"
       delegate_to: localhost
 
-    - name: Commit and push the configuration to GitHub
-      command:
-        cmd: |
-          cd /tmp/aap_templates
-          git add backups/{{ inventory_hostname }}-running-config.txt
-          git commit -m "Backup of running-config from {{ inventory_hostname }}"
-          git push
+    - name: Commit and push changes
+      shell: |
+        cd /tmp/aap_templates
+        git add backups/{{ inventory_hostname }}-running-config.cfg
+        git commit -m "Backup running config for {{ inventory_hostname }}"
+        git push origin main
+      environment:
+        GIT_AUTHOR_NAME: "Tony Tweed"
+        GIT_AUTHOR_EMAIL: "ttweed98@gmail.com"
+        GIT_COMMITTER_NAME: "Tony Tweed"
+        GIT_COMMITTER_EMAIL: "ttweed98@gmail.com"
       delegate_to: localhost
